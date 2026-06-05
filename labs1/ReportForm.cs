@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace labs1
 {
-    public class ReportForm : Form
+    public partial class ReportForm : Form
     {
         private ReportManager reportManager;
         private TextBox titleTextBox;

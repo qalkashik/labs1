@@ -1,66 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace labs1
-{ 
-public class ReportManager
 {
-    public List<Report> Reports { get; private set; }
-    public ReportManager()
+    public class ReportManager
     {
-        Reports = new List<Report>();
-        LoadReports();
-    }
-    public void AddReport(Report report)
-    {
-        if (report == null)
+        public List<Report> Reports { get; private set; }
+        public ReportManager()
         {
-            throw new ArgumentNullException(nameof(report));
+            Reports = new List<Report>();
+            LoadReports();
         }
-        Reports.Add(report);
-        SaveReports();
-    }
-    public void RemoveReport(Report report)
-    {
-        if (report == null)
+        public void AddReport(Report report)
         {
-            throw new ArgumentNullException(nameof(report));
-        }
-        Reports.Remove(report);
-        SaveReports();
-    }
-    public void UpdateReport(Report report, string newTitle, string newContent)
-    {
-        if (report == null)
-        {
-            throw new ArgumentNullException(nameof(report));
-        }
-        report.Title = newTitle;
-        report.Content = newContent;
-        SaveReports();
-    }
-    private void SaveReports()
-    {
-        File.WriteAllLines("reports.txt", Reports.Select(r =>
-        $"{r.Title}|{r.Content}|{r.CreationDate.ToString("yyyy-MM-dd HH:mm:ss")}"));
-    }
-    private void LoadReports()
-    {
-        if (File.Exists("reports.txt"))
-        {
-            var lines = File.ReadAllLines("reports.txt");
-            foreach (var line in lines)
+            if (report == null)
             {
-                var parts = line.Split('|');
-                if (parts.Length == 3)
+                throw new ArgumentNullException(nameof(report));
+            }
+            Reports.Add(report);
+            SaveReports();
+        }
+        public void RemoveReport(Report report)
+        {
+            if (report == null)
+            {
+                throw new ArgumentNullException(nameof(report));
+            }
+            Reports.Remove(report);
+            SaveReports();
+        }
+        public void UpdateReport(Report report, string newTitle, string newContent)
+        {
+            if (report == null)
+            {
+                throw new ArgumentNullException(nameof(report));
+            }
+            report.Title = newTitle;
+            report.Content = newContent;
+            SaveReports();
+        }
+        private void SaveReports()
+        {
+            File.WriteAllLines("reports.txt", Reports.Select(r =>
+            $"{r.Title}|{r.Content}|{r.CreationDate.ToString("yyyy-MM-dd HH:mm:ss")}"));
+        }
+        private void LoadReports()
+        {
+            if (File.Exists("reports.txt"))
+            {
+                var lines = File.ReadAllLines("reports.txt");
+                foreach (var line in lines)
                 {
-                    DateTime creationDate;
-                    if (DateTime.TryParse(parts[2], out creationDate))
+                    var parts = line.Split('|');
+                    if (parts.Length == 3)
                     {
-                        Reports.Add(new Report(parts[0], parts[1], creationDate));
+                        DateTime creationDate;
+                        if (DateTime.TryParse(parts[2], out creationDate))
+                        {
+                            Reports.Add(new Report(parts[0], parts[1], creationDate));
+                        }
                     }
                 }
             }
