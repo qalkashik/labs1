@@ -1,178 +1,192 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace labs1
 {
     public partial class ReportForm : Form
     {
-        private ReportManager reportManager;
-        private TextBox titleTextBox;
-        private TextBox contentTextBox;
-        private Button addReportButton;
-        private Button removeReportButton;
-        private Button updateReportButton;
-        private ListBox reportsListBox;
+        private ReportManager _reportManager;
+
         public ReportForm()
         {
-            this.Text = "Управление отчётами";
-            this.Width = 600;
-            this.Height = 500;
-            titleTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(10, 10),
-                Width = 200,
-
-            };
-            contentTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(10, 40),
-                Width = 200,
-                Height = 100,
-                Multiline = true,
-                ScrollBars = ScrollBars.Both,
-
-            };
-            addReportButton = new Button
-            {
-                Location = new System.Drawing.Point(10, 150),
-                Text = "Добавить",
-                Width = 100
-            };
-            addReportButton.Click += AddReportButton_Click;
-            removeReportButton = new Button
-            {
-                Location = new System.Drawing.Point(120, 150),
-                Text = "Удалить",
-                Width = 100
-            };
-            removeReportButton.Click += RemoveReportButton_Click;
-            updateReportButton = new Button
-            {
-                Location = new System.Drawing.Point(220, 150),
-                Text = "Обновить",
-                Width = 100
-            };
-            updateReportButton.Click += UpdateReportButton_Click;
-            reportsListBox = new ListBox
-            {
-                Location = new System.Drawing.Point(10, 180),
-                Width = 560,
-                Height = 200
-            };
-            this.Controls.Add(titleTextBox);
-            this.Controls.Add(contentTextBox);
-            this.Controls.Add(addReportButton);
-            this.Controls.Add(removeReportButton);
-            this.Controls.Add(updateReportButton);
-            this.Controls.Add(reportsListBox);
-            reportManager = new ReportManager();
-            UpdateReportsList();
+            InitializeComponent();
+            _reportManager = new ReportManager();
+            LoadReportsToListBox();
+            UpdateReportsCount();
         }
-        private void UpdateReportsList()
+
+        private void LoadReportsToListBox()
         {
-            reportsListBox.Items.Clear();
-            foreach (var report in reportManager.Reports)
+            lstReports.Items.Clear();
+            foreach (var report in _reportManager.Reports)
             {
-                reportsListBox.Items.Add($"{report.Title}({report.CreationDate.ToString("yyyy-MM-dd")})");
+                lstReports.Items.Add($"{report.Title} | {report.CreationDate:yyyy-MM-dd HH:mm}");
             }
         }
-        private void AddReportButton_Click(object sender, EventArgs e)
+
+        private void UpdateReportsCount()
         {
-            if (string.IsNullOrEmpty(titleTextBox.Text) || string.IsNullOrEmpty(contentTextBox.Text))
+            lblReportsCount.Text = $"Всего отчётов: {_reportManager.Reports.Count}";
+        }
+
+        private void ClearInputFields()
+        {
+            txtTitle.Text = string.Empty;
+            txtContent.Text = string.Empty;
+            dtpCreationDate.Value = DateTime.Now;
+            txtTitle.Focus();
+        }
+
+        private bool ValidateInput()
+        {
+            if (string.IsNullOrWhiteSpace(txtTitle.Text))
             {
-                MessageBox.Show("Заполните все поля!");
-                return;
+                MessageBox.Show("Пожалуйста, введите заголовок отчёта.", "Ошибка валидации",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtTitle.Focus();
+                return false;
             }
-            Report newReport = new Report(titleTextBox.Text, contentTextBox.Text,
-            DateTime.Now);
+
+            if (string.IsNullOrWhiteSpace(txtContent.Text))
+            {
+                MessageBox.Show("Пожалуйста, введите содержимое отчёта.", "Ошибка валидации",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtContent.Focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        private Report GetSelectedReport()
+        {
+            if (lstReports.SelectedIndex == -1)
+            {
+                MessageBox.Show("Пожалуйста, выберите отчёт из списка.", "Ошибка выбора",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return null;
+            }
+
+            if (lstReports.SelectedIndex >= _reportManager.Reports.Count)
+            {
+                return null;
+            }
+
+            return _reportManager.Reports[lstReports.SelectedIndex];
+        }
+
+        private void BtnAdd_Click(object sender, EventArgs e)
+        {
             try
             {
-                reportManager.AddReport(newReport);
-                titleTextBox.Clear();
-                contentTextBox.Clear();
-                UpdateReportsList();
+                if (!ValidateInput())
+                    return;
+
+                Report newReport = new Report(
+                    txtTitle.Text.Trim(),
+                    txtContent.Text.Trim(),
+                    dtpCreationDate.Value
+                );
+
+                _reportManager.AddReport(newReport);
+                LoadReportsToListBox();
+                UpdateReportsCount();
+                ClearInputFields();
+
+                lblStatus.Text = $"Отчёт \"{newReport.Title}\" успешно добавлен!";
+                MessageBox.Show("Отчёт успешно добавлен!", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show($"Ошибка при добавлении отчёта: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lblStatus.Text = "Ошибка при добавлении отчёта";
             }
         }
-        private void RemoveReportButton_Click(object sender, EventArgs e)
+
+        private void BtnUpdate_Click(object sender, EventArgs e)
         {
-            if (reportsListBox.SelectedIndex == -1)
+            try
             {
-                MessageBox.Show("Выберите отчёт для удаления!");
-                return;
+                Report selectedReport = GetSelectedReport();
+                if (selectedReport == null)
+                    return;
+
+                if (!ValidateInput())
+                    return;
+
+                _reportManager.UpdateReport(
+                    selectedReport,
+                    txtTitle.Text.Trim(),
+                    txtContent.Text.Trim()
+                );
+
+                LoadReportsToListBox();
+                UpdateReportsCount();
+
+                lblStatus.Text = $"Отчёт \"{selectedReport.Title}\" успешно обновлён!";
+                MessageBox.Show("Отчёт успешно обновлён!", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            string selectedItem = reportsListBox.SelectedItem.ToString();
-            string[] parts = selectedItem.Split(new[] { '-' }, StringSplitOptions.None);
-            if (parts.Length >= 2)
+            catch (Exception ex)
             {
-                string title = parts[0].Trim();
-                DateTime date;
-                if (DateTime.TryParse(parts[1].Split(' ')[0], out date))
-                {
-                    var reportToRemove = reportManager.Reports.Find(r => r.Title == title &&
-                    r.CreationDate.Date == date.Date);
-                    if (reportToRemove != null)
-                    {
-                        try
-                        {
-                            reportManager.RemoveReport(reportToRemove);
-                            UpdateReportsList();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-                    }
-                }
+                MessageBox.Show($"Ошибка при обновлении отчёта: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lblStatus.Text = "Ошибка при обновлении отчёта";
             }
         }
-        private void UpdateReportButton_Click(object sender, EventArgs e)
+
+        private void BtnDelete_Click(object sender, EventArgs e)
         {
-            if (reportsListBox.SelectedIndex == -1)
+            try
             {
-                MessageBox.Show("Выберите отчёт для обновления!");
-                return;
-            }
-            string selectedItem = reportsListBox.SelectedItem.ToString();
-            string[] parts = selectedItem.Split(new[] { '-' }, StringSplitOptions.None);
-            if (parts.Length >= 2)
-            {
-                string title = parts[0].Trim();
-                DateTime date;
-                if (DateTime.TryParse(parts[1].Split(' ')[0], out date))
+                Report selectedReport = GetSelectedReport();
+                if (selectedReport == null)
+                    return;
+
+                DialogResult result = MessageBox.Show(
+                    $"Вы уверены, что хотите удалить отчёт \"{selectedReport.Title}\"?",
+                    "Подтверждение удаления",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (result == DialogResult.Yes)
                 {
-                    var reportToUpdate = reportManager.Reports.Find(r => r.Title == title &&
-                    r.CreationDate.Date == date.Date);
-                    if (reportToUpdate != null)
-                    {
-                        if (string.IsNullOrEmpty(titleTextBox.Text) ||
-                        string.IsNullOrEmpty(contentTextBox.Text))
-                        {
-                            MessageBox.Show("Заполните все поля!");
-                            return;
-                        }
-                        try
-                        {
-                            reportManager.UpdateReport(reportToUpdate, titleTextBox.Text,
-                            contentTextBox.Text);
-                            UpdateReportsList();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-                    }
+                    _reportManager.RemoveReport(selectedReport);
+                    LoadReportsToListBox();
+                    UpdateReportsCount();
+                    ClearInputFields();
+
+                    lblStatus.Text = $"Отчёт \"{selectedReport.Title}\" успешно удалён!";
+                    MessageBox.Show("Отчёт успешно удалён!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении отчёта: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lblStatus.Text = "Ошибка при удалении отчёта";
+            }
+        }
+
+        private void BtnClear_Click(object sender, EventArgs e)
+        {
+            ClearInputFields();
+            lblStatus.Text = "Поля очищены";
+        }
+
+        private void LstReports_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Report selectedReport = GetSelectedReport();
+            if (selectedReport != null)
+            {
+                txtTitle.Text = selectedReport.Title;
+                txtContent.Text = selectedReport.Content;
+                dtpCreationDate.Value = selectedReport.CreationDate;
+                lblStatus.Text = $"Выбран отчёт: {selectedReport.Title}";
             }
         }
     }
