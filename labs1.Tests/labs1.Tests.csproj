@@ -52,6 +52,7 @@
     <Compile Include="reporttest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="reportmanagertest.cs" />
+    <Compile Include="5labatest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
