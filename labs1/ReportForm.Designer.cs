@@ -41,33 +41,38 @@
 
             // Настройка формы
             this.SuspendLayout();
-            this.Text = "Управление отчётами - Лабораторная работа №5";
+            this.Text = "Управление отчётами - Лабораторная работа №6";
             this.Size = new System.Drawing.Size(850, 650);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.Name = "ReportForm";
 
             // inputPanel
             inputPanel.Location = new System.Drawing.Point(10, 10);
             inputPanel.Size = new System.Drawing.Size(400, 280);
             inputPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             inputPanel.BackColor = System.Drawing.Color.White;
+            inputPanel.Name = "inputPanel";
 
             // lblTitle
             this.lblTitle.Text = "Заголовок отчёта:";
             this.lblTitle.Location = new System.Drawing.Point(10, 15);
             this.lblTitle.Size = new System.Drawing.Size(120, 25);
             this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Name = "lblTitle";
 
             // txtTitle
             this.txtTitle.Location = new System.Drawing.Point(130, 12);
             this.txtTitle.Size = new System.Drawing.Size(250, 25);
             this.txtTitle.Font = new System.Drawing.Font("Segoe UI", 10);
+            this.txtTitle.Name = "txtTitle";
 
             // lblContent
             this.lblContent.Text = "Содержимое:";
             this.lblContent.Location = new System.Drawing.Point(10, 50);
             this.lblContent.Size = new System.Drawing.Size(120, 25);
             this.lblContent.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            this.lblContent.Name = "lblContent";
 
             // txtContent
             this.txtContent.Location = new System.Drawing.Point(10, 80);
@@ -75,12 +80,14 @@
             this.txtContent.Multiline = true;
             this.txtContent.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtContent.Font = new System.Drawing.Font("Segoe UI", 10);
+            this.txtContent.Name = "txtContent";
 
             // lblDate
             this.lblDate.Text = "Дата создания:";
             this.lblDate.Location = new System.Drawing.Point(10, 170);
             this.lblDate.Size = new System.Drawing.Size(120, 25);
             this.lblDate.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            this.lblDate.Name = "lblDate";
 
             // dtpCreationDate
             this.dtpCreationDate.Location = new System.Drawing.Point(130, 167);
@@ -89,17 +96,20 @@
             this.dtpCreationDate.CustomFormat = "yyyy-MM-dd HH:mm:ss";
             this.dtpCreationDate.ShowUpDown = true;
             this.dtpCreationDate.Value = System.DateTime.Now;
+            this.dtpCreationDate.Name = "dtpCreationDate";
 
             // lblCategory
             this.lblCategory.Text = "Категория:";
             this.lblCategory.Location = new System.Drawing.Point(10, 200);
             this.lblCategory.Size = new System.Drawing.Size(80, 25);
             this.lblCategory.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            this.lblCategory.Name = "lblCategory";
 
             // cmbCategory
             this.cmbCategory.Location = new System.Drawing.Point(90, 197);
             this.cmbCategory.Size = new System.Drawing.Size(150, 25);
             this.cmbCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbCategory.Name = "cmbCategory";
 
             // btnAddCategory
             this.btnAddCategory.Text = "+";
@@ -107,6 +117,7 @@
             this.btnAddCategory.Size = new System.Drawing.Size(35, 27);
             this.btnAddCategory.BackColor = System.Drawing.Color.LightGreen;
             this.btnAddCategory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddCategory.Name = "btnAddCategory";
             this.btnAddCategory.Click += new System.EventHandler(this.BtnAddCategory_Click);
 
             // btnRemoveCategory
@@ -115,6 +126,7 @@
             this.btnRemoveCategory.Size = new System.Drawing.Size(35, 27);
             this.btnRemoveCategory.BackColor = System.Drawing.Color.LightCoral;
             this.btnRemoveCategory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemoveCategory.Name = "btnRemoveCategory";
             this.btnRemoveCategory.Click += new System.EventHandler(this.BtnRemoveCategory_Click);
 
             // btnAdd
@@ -123,6 +135,7 @@
             this.btnAdd.Size = new System.Drawing.Size(85, 30);
             this.btnAdd.BackColor = System.Drawing.Color.LightGreen;
             this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAdd.Name = "btnAdd";
             this.btnAdd.Click += new System.EventHandler(this.BtnAdd_Click);
 
             // btnUpdate
@@ -131,6 +144,7 @@
             this.btnUpdate.Size = new System.Drawing.Size(85, 30);
             this.btnUpdate.BackColor = System.Drawing.Color.LightBlue;
             this.btnUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Click += new System.EventHandler(this.BtnUpdate_Click);
 
             // btnDelete
@@ -139,6 +153,7 @@
             this.btnDelete.Size = new System.Drawing.Size(85, 30);
             this.btnDelete.BackColor = System.Drawing.Color.LightCoral;
             this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Name = "btnDelete";
             this.btnDelete.Click += new System.EventHandler(this.BtnDelete_Click);
 
             // btnClear
@@ -147,6 +162,7 @@
             this.btnClear.Size = new System.Drawing.Size(85, 30);
             this.btnClear.BackColor = System.Drawing.Color.LightGray;
             this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClear.Name = "btnClear";
             this.btnClear.Click += new System.EventHandler(this.BtnClear_Click);
 
             // Добавляем контролы на inputPanel
@@ -163,11 +179,13 @@
             this.lblReportsList.Location = new System.Drawing.Point(420, 10);
             this.lblReportsList.Size = new System.Drawing.Size(400, 25);
             this.lblReportsList.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            this.lblReportsList.Name = "lblReportsList";
 
             // lstReports
             this.lstReports.Location = new System.Drawing.Point(420, 40);
             this.lstReports.Size = new System.Drawing.Size(400, 500);
             this.lstReports.Font = new System.Drawing.Font("Segoe UI", 10);
+            this.lstReports.Name = "lstReports";
             this.lstReports.SelectedIndexChanged += new System.EventHandler(this.LstReports_SelectedIndexChanged);
 
             // lblFilterCategory
@@ -176,11 +194,13 @@
             this.lblFilterCategory.Location = new System.Drawing.Point(420, 545);
             this.lblFilterCategory.Size = new System.Drawing.Size(130, 25);
             this.lblFilterCategory.Font = new System.Drawing.Font("Segoe UI", 9);
+            this.lblFilterCategory.Name = "lblFilterCategory";
 
             // cmbFilterCategory
             this.cmbFilterCategory.Location = new System.Drawing.Point(560, 542);
             this.cmbFilterCategory.Size = new System.Drawing.Size(150, 25);
             this.cmbFilterCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbFilterCategory.Name = "cmbFilterCategory";
             this.cmbFilterCategory.SelectedIndexChanged += new System.EventHandler(this.CmbFilterCategory_SelectedIndexChanged);
 
             // lblReportsCount
@@ -188,11 +208,14 @@
             this.lblReportsCount.Size = new System.Drawing.Size(100, 25);
             this.lblReportsCount.Text = "Всего отчётов: 0";
             this.lblReportsCount.Font = new System.Drawing.Font("Segoe UI", 9);
+            this.lblReportsCount.Name = "lblReportsCount";
 
             // statusStrip
-            this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel("Готов к работе");
             this.statusStrip.Items.Add(this.lblStatus);
+            this.statusStrip.Name = "statusStrip";
+
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Text = "Готов к работе";
 
             // Добавляем элементы на форму
             this.Controls.Add(inputPanel);
