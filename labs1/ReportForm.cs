@@ -11,22 +11,57 @@ namespace labs1
         {
             InitializeComponent();
             _reportManager = new ReportManager();
+            LoadCategoriesToComboBox();
+            LoadFilterCategoriesToComboBox();
             LoadReportsToListBox();
             UpdateReportsCount();
+        }
+
+        private void LoadCategoriesToComboBox()
+        {
+            cmbCategory.Items.Clear();
+            foreach (var category in _reportManager.Categories)
+            {
+                cmbCategory.Items.Add(category);
+            }
+            if (cmbCategory.Items.Count > 0)
+                cmbCategory.SelectedIndex = 0;
+        }
+
+        private void LoadFilterCategoriesToComboBox()
+        {
+            cmbFilterCategory.Items.Clear();
+            cmbFilterCategory.Items.Add("Все категории");
+            foreach (var category in _reportManager.Categories)
+            {
+                cmbFilterCategory.Items.Add(category);
+            }
+            cmbFilterCategory.SelectedIndex = 0;
         }
 
         private void LoadReportsToListBox()
         {
             lstReports.Items.Clear();
-            foreach (var report in _reportManager.Reports)
+
+            string selectedFilter = cmbFilterCategory.SelectedItem?.ToString() ?? "Все категории";
+
+            var reportsToShow = selectedFilter == "Все категории"
+                ? _reportManager.Reports
+                : _reportManager.GetReportsByCategory(selectedFilter);
+
+            foreach (var report in reportsToShow)
             {
-                lstReports.Items.Add($"{report.Title} | {report.CreationDate:yyyy-MM-dd HH:mm}");
+                lstReports.Items.Add(report.ToString());
             }
         }
 
         private void UpdateReportsCount()
         {
-            lblReportsCount.Text = $"Всего отчётов: {_reportManager.Reports.Count}";
+            string selectedFilter = cmbFilterCategory.SelectedItem?.ToString() ?? "Все категории";
+            int count = selectedFilter == "Все категории"
+                ? _reportManager.Reports.Count
+                : _reportManager.GetReportsByCategory(selectedFilter).Count;
+            lblReportsCount.Text = $"Всего отчётов: {count}";
         }
 
         private void ClearInputFields()
@@ -34,6 +69,8 @@ namespace labs1
             txtTitle.Text = string.Empty;
             txtContent.Text = string.Empty;
             dtpCreationDate.Value = DateTime.Now;
+            if (cmbCategory.Items.Count > 0)
+                cmbCategory.SelectedIndex = 0;
             txtTitle.Focus();
         }
 
@@ -67,12 +104,15 @@ namespace labs1
                 return null;
             }
 
-            if (lstReports.SelectedIndex >= _reportManager.Reports.Count)
-            {
-                return null;
-            }
+            string selectedFilter = cmbFilterCategory.SelectedItem?.ToString() ?? "Все категории";
+            var reportsList = selectedFilter == "Все категории"
+                ? _reportManager.Reports
+                : _reportManager.GetReportsByCategory(selectedFilter);
 
-            return _reportManager.Reports[lstReports.SelectedIndex];
+            if (lstReports.SelectedIndex >= reportsList.Count)
+                return null;
+
+            return reportsList[lstReports.SelectedIndex];
         }
 
         private void BtnAdd_Click(object sender, EventArgs e)
@@ -82,10 +122,13 @@ namespace labs1
                 if (!ValidateInput())
                     return;
 
+                string category = cmbCategory.SelectedItem?.ToString() ?? "Без категории";
+
                 Report newReport = new Report(
                     txtTitle.Text.Trim(),
                     txtContent.Text.Trim(),
-                    dtpCreationDate.Value
+                    dtpCreationDate.Value,
+                    category
                 );
 
                 _reportManager.AddReport(newReport);
@@ -116,11 +159,10 @@ namespace labs1
                 if (!ValidateInput())
                     return;
 
-                _reportManager.UpdateReport(
-                    selectedReport,
-                    txtTitle.Text.Trim(),
-                    txtContent.Text.Trim()
-                );
+                string newCategory = cmbCategory.SelectedItem?.ToString() ?? "Без категории";
+
+                _reportManager.UpdateReport(selectedReport, txtTitle.Text.Trim(), txtContent.Text.Trim());
+                _reportManager.UpdateReportCategory(selectedReport, newCategory);
 
                 LoadReportsToListBox();
                 UpdateReportsCount();
@@ -186,7 +228,82 @@ namespace labs1
                 txtTitle.Text = selectedReport.Title;
                 txtContent.Text = selectedReport.Content;
                 dtpCreationDate.Value = selectedReport.CreationDate;
+
+                int index = cmbCategory.Items.IndexOf(selectedReport.Category);
+                if (index >= 0)
+                    cmbCategory.SelectedIndex = index;
+
                 lblStatus.Text = $"Выбран отчёт: {selectedReport.Title}";
+            }
+        }
+
+        private void CmbFilterCategory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadReportsToListBox();
+            UpdateReportsCount();
+        }
+
+        private void BtnAddCategory_Click(object sender, EventArgs e)
+        {
+            string newCategory = Microsoft.VisualBasic.Interaction.InputBox(
+                "Введите название новой категории:",
+                "Добавление категории",
+                "");
+
+            if (!string.IsNullOrWhiteSpace(newCategory))
+            {
+                try
+                {
+                    _reportManager.AddCategory(newCategory);
+                    LoadCategoriesToComboBox();
+                    LoadFilterCategoriesToComboBox();
+                    lblStatus.Text = $"Категория \"{newCategory}\" добавлена!";
+                    MessageBox.Show("Категория успешно добавлена!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void BtnRemoveCategory_Click(object sender, EventArgs e)
+        {
+            string selectedCategory = cmbCategory.SelectedItem?.ToString();
+            if (selectedCategory == null || selectedCategory == "Без категории")
+            {
+                MessageBox.Show("Нельзя удалить категорию 'Без категории' или когда не выбрана категория.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult result = MessageBox.Show(
+                $"Вы уверены, что хотите удалить категорию \"{selectedCategory}\"?\n\nОтчёты с этой категорией будут перемещены в 'Без категории'.",
+                "Подтверждение удаления",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    _reportManager.RemoveCategory(selectedCategory);
+                    LoadCategoriesToComboBox();
+                    LoadFilterCategoriesToComboBox();
+                    LoadReportsToListBox();
+                    UpdateReportsCount();
+                    lblStatus.Text = $"Категория \"{selectedCategory}\" удалена!";
+                    MessageBox.Show("Категория успешно удалена!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
     }
